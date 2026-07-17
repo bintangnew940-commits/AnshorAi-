@@ -1,76 +1,65 @@
-// Cek status API
-fetch('/api/status')
-.then(res => res.json())
-.then(data => {
-  document.getElementById('status').innerText = data.status;
-  document.getElementById('status').style.color = data.color;
-})
-.catch(() => {
-  document.getElementById('status').innerText = "Gagal Cek";
-  document.getElementById('status').style.color = "red";
-});
+const chatBox = document.getElementById('chat-box');
+const userInput = document.getElementById('user-input');
 
-// Ganti Tab - VERSI FIX
-function showTab(tabName, element) {
-  // Sembunyiin semua tab
-  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-  // Hapus active di semua menu
-  document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
-  // Tampilkan tab yang diklik
-  document.getElementById(tabName).classList.add('active');
-  // Kasih active ke menu yang diklik
-  element.classList.add('active');
-}
-
-// Kirim Chat
-let history = [];
 async function sendMessage() {
-  const input = document.getElementById('userInput');
-  const message = input.value.trim();
-  if (!message) return;
+    const message = userInput.value.trim();
+    if (message === '') return;
 
-  addMessage(message, 'user');
-  input.value = '';
-  history.push({ role: "user", content: message });
+    // 1. Tampilin chat user
+    addMessage(message, 'user');
+    userInput.value = '';
+    userInput.disabled = true;
 
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, history })
-    });
-    const data = await res.json();
-    addMessage(`[${data.source}] ${data.reply}`, 'bot');
-    history.push({ role: "assistant", content: data.reply });
-  } catch {
-    addMessage("[Error] Gagal terhubung ke server", 'bot');
-  }
+    // 2. Tampilin "AnshorAi lagi ngetik..."
+    addMessage('lagi mikir dulu...', 'ai loading');
+
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        
+        // 3. Hapus loading, ganti sama jawaban AI
+        removeLoading();
+        addMessage(data.reply, 'ai');
+
+    } catch (error) {
+        console.error('Error:', error);
+        removeLoading();
+        addMessage('Waduh error bro. Coba refresh dulu ya 😅', 'ai error');
+    } finally {
+        userInput.disabled = false;
+        userInput.focus();
+    }
 }
 
 function addMessage(text, sender) {
-  const chatBox = document.getElementById('chatBox');
-  const div = document.createElement('div');
-  div.className = `msg ${sender}`;
-  div.innerHTML = `<b>${sender === 'user'? 'Kamu' : 'AnshorAi'}:</b> ${text}`;
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', sender);
+    messageElement.innerHTML = `<p>${text}</p>`;
+    chatBox.appendChild(messageElement);
+    chatBox.scrollTop = chatBox.scrollHeight; // auto scroll ke bawah
 }
 
-// Jadwal Sholat
-async function getJadwal() {
-  const kota = document.getElementById('kota').value;
-  if(!kota) return alert("Isi nama kota dulu");
-  document.getElementById('jadwalResult').innerHTML = "Loading...";
-  try {
-    const res = await fetch(`/api/islamic/jadwal/${kota}`);
-    const data = await res.json();
-    document.getElementById('jadwalResult').innerHTML = `<pre style="background:#0A1128;padding:10px;border-radius:10px;">${JSON.stringify(data, null, 2)}</pre>`;
-  } catch {
-    document.getElementById('jadwalResult').innerHTML = "Gagal ambil data";
-  }
+function removeLoading() {
+    const loadingMessage = chatBox.querySelector('.ai.loading');
+    if (loadingMessage) {
+        chatBox.removeChild(loadingMessage);
+    }
 }
 
-// Enter to send
-document.getElementById('userInput').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') sendMessage();
+// Biar bisa pencet Enter buat kirim
+userInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
 });
