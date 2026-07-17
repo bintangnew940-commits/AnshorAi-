@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// AMAN: Ambil dari Environment Variable Render
+// AMAN: Ambil dari Environment Variable Vercel
 const GROQ_KEY = process.env.GROQ_KEY;
 const groq = new Groq({ apiKey: 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 });
 
@@ -49,11 +49,4 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`=================================`);
-    console.log(` AnshorAi Baitul Hikmah Aktif`);
-    console.log(` Port: ${PORT}`);
-    console.log(` Engine: Groq Llama 3.3 70B`);
-    console.log(`=================================`);
-});
+module.exports = app;
