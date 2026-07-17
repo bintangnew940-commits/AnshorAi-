@@ -209,24 +209,25 @@
         .chat-area::-webkit-scrollbar { width: 3px; }
         .chat-area::-webkit-scrollbar-thumb { background: rgba(184, 160, 124, 0.15); border-radius: 20px; }
 
-        /* ─── LOGO WATERMARK (GAMBAR) — DIPERBESAR ─── */
+        /* ─── LOGO WATERMARK — SANGAT BESAR ─── */
         .chat-watermark {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.06;
+            opacity: 0.07;
             pointer-events: none;
             z-index: 0;
             user-select: none;
             text-align: center;
-            width: 80%;
-            max-width: 460px;
+            width: 100%;
+            max-width: 900px;
+            padding: 0 20px;
         }
         .chat-watermark img {
             width: 100%;
             height: auto;
-            max-height: 340px;
+            max-height: 80vh;
             object-fit: contain;
             filter: grayscale(1) brightness(1.2);
             display: block;
@@ -235,7 +236,7 @@
         /* Fallback jika gambar gagal dimuat */
         .chat-watermark img::after {
             content: '✦';
-            font-size: 60px;
+            font-size: 120px;
             color: var(--accent);
             display: block;
         }
@@ -544,7 +545,8 @@
             .empty-state h3 { font-size: 18px; }
             .empty-state .icon-big { font-size: 44px; }
             .copyright { font-size: 11px; padding: 6px 0 10px; }
-            .chat-watermark { max-width: 280px; width: 65%; }
+            .chat-watermark { max-width: 600px; }
+            .chat-watermark img { max-height: 70vh; }
         }
     </style>
 </head>
@@ -586,7 +588,7 @@
         <!-- ─── CHAT AREA ─── -->
         <div class="chat-area" id="chatArea">
 
-            <!-- ─── LOGO WATERMARK (GAMBAR) — DIPERBESAR ─── -->
+            <!-- ─── LOGO WATERMARK — SANGAT BESAR ─── -->
             <div class="chat-watermark">
                 <!-- Ganti 'logo.png' dengan nama file gambar Anda -->
                 <img src="logo.png" alt="Logo" />
@@ -641,4 +643,165 @@
             // ─── DOM ───
             const chatArea = document.getElementById('chatArea');
             const emptyState = document.getElementById('emptyState');
-            const typingIndicator = document.getElementById('typingIndic
+            const typingIndicator = document.getElementById('typingIndicator');
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const clearBtn = document.getElementById('clearBtn');
+
+            let isProcessing = false;
+
+            // ─── HELPERS ───
+            function getTime() {
+                const now = new Date();
+                return now.getHours().toString().padStart(2, '0') + ':' +
+                       now.getMinutes().toString().padStart(2, '0');
+            }
+
+            function scrollToBottom() {
+                setTimeout(() => {
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                }, 50);
+            }
+
+            function toggleEmptyState() {
+                const messages = chatArea.querySelectorAll('.message-wrapper');
+                if (messages.length === 0) {
+                    emptyState.style.display = 'flex';
+                } else {
+                    emptyState.style.display = 'none';
+                }
+            }
+
+            // ─── RENDER PESAN ───
+            function addMessage(text, sender) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'message-wrapper ' + sender;
+
+                const avatar = document.createElement('div');
+                avatar.className = 'avatar' + (sender === 'user' ? ' user-avatar' : '');
+                avatar.textContent = sender === 'user' ? 'U' : 'A';
+
+                const bubble = document.createElement('div');
+                bubble.className = 'message ' + sender;
+
+                if (sender === 'ai') {
+                    const label = document.createElement('div');
+                    label.className = 'msg-label';
+                    label.innerHTML = '<i class="fas fa-feather-alt" style="font-size:10px;"></i> AnshorAi';
+                    bubble.appendChild(label);
+                }
+
+                const textNode = document.createElement('div');
+                textNode.textContent = text;
+                bubble.appendChild(textNode);
+
+                const time = document.createElement('div');
+                time.className = 'msg-time';
+                time.textContent = getTime();
+                bubble.appendChild(time);
+
+                wrapper.appendChild(avatar);
+                wrapper.appendChild(bubble);
+
+                // Sembunyikan empty state & typing
+                typingIndicator.classList.remove('active');
+                emptyState.style.display = 'none';
+
+                chatArea.appendChild(wrapper);
+                scrollToBottom();
+                toggleEmptyState();
+            }
+
+            // ─── TAMPILKAN TYPING ───
+            function showTyping() {
+                typingIndicator.classList.add('active');
+                scrollToBottom();
+            }
+
+            function hideTyping() {
+                typingIndicator.classList.remove('active');
+            }
+
+            // ─── KIRIM PESAN ───
+            async function sendMessage() {
+                const text = messageInput.value.trim();
+                if (!text || isProcessing) return;
+
+                isProcessing = true;
+                sendBtn.disabled = true;
+
+                // Tampilkan pesan user
+                addMessage(text, 'user');
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+
+                // Tampilkan typing
+                showTyping();
+
+                try {
+                    const response = await fetch(API_CONFIG.url, {
+                        method: API_CONFIG.method,
+                        headers: API_CONFIG.headers,
+                        body: JSON.stringify({ message: text })
+                    });
+
+                    hideTyping();
+
+                    if (!response.ok) {
+                        throw new Error('Server error: ' + response.status);
+                    }
+
+                    const data = await response.json();
+                    const reply = data.reply || data.message || data.response || 'Maaf, saya tidak bisa menjawab saat ini.';
+                    addMessage(reply, 'ai');
+
+                } catch (error) {
+                    hideTyping();
+                    console.error('API Error:', error);
+                    addMessage('Terjadi kesalahan koneksi. Pastikan server berjalan.', 'ai');
+                }
+
+                isProcessing = false;
+                sendBtn.disabled = false;
+                messageInput.focus();
+            }
+
+            // ─── CLEAR ───
+            function clearChat() {
+                const wrappers = chatArea.querySelectorAll('.message-wrapper');
+                wrappers.forEach(el => el.remove());
+                hideTyping();
+                toggleEmptyState();
+                chatArea.scrollTop = 0;
+            }
+
+            // ─── AUTO RESIZE TEXTAREA ───
+            function autoResize() {
+                messageInput.style.height = 'auto';
+                messageInput.style.height = Math.min(messageInput.scrollHeight, 110) + 'px';
+            }
+
+            // ─── EVENT LISTENERS ───
+            sendBtn.addEventListener('click', sendMessage);
+
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            messageInput.addEventListener('input', autoResize);
+
+            clearBtn.addEventListener('click', clearChat);
+
+            // ─── INIT ───
+            toggleEmptyState();
+            messageInput.focus();
+
+        })();
+    </script>
+
+</body>
+</html>
+```
