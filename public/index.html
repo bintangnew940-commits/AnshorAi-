@@ -209,24 +209,24 @@
         .chat-area::-webkit-scrollbar { width: 3px; }
         .chat-area::-webkit-scrollbar-thumb { background: rgba(184, 160, 124, 0.15); border-radius: 20px; }
 
-        /* ─── LOGO WATERMARK (GAMBAR) ─── */
+        /* ─── LOGO WATERMARK (GAMBAR) — DIPERBESAR ─── */
         .chat-watermark {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.04;
+            opacity: 0.06;
             pointer-events: none;
             z-index: 0;
             user-select: none;
             text-align: center;
-            width: 60%;
-            max-width: 240px;
+            width: 80%;
+            max-width: 460px;
         }
         .chat-watermark img {
             width: 100%;
             height: auto;
-            max-height: 180px;
+            max-height: 340px;
             object-fit: contain;
             filter: grayscale(1) brightness(1.2);
             display: block;
@@ -544,7 +544,7 @@
             .empty-state h3 { font-size: 18px; }
             .empty-state .icon-big { font-size: 44px; }
             .copyright { font-size: 11px; padding: 6px 0 10px; }
-            .chat-watermark { max-width: 160px; width: 50%; }
+            .chat-watermark { max-width: 280px; width: 65%; }
         }
     </style>
 </head>
@@ -586,7 +586,7 @@
         <!-- ─── CHAT AREA ─── -->
         <div class="chat-area" id="chatArea">
 
-            <!-- ─── LOGO WATERMARK (GAMBAR) ─── -->
+            <!-- ─── LOGO WATERMARK (GAMBAR) — DIPERBESAR ─── -->
             <div class="chat-watermark">
                 <!-- Ganti 'logo.png' dengan nama file gambar Anda -->
                 <img src="logo.png" alt="Logo" />
@@ -641,148 +641,4 @@
             // ─── DOM ───
             const chatArea = document.getElementById('chatArea');
             const emptyState = document.getElementById('emptyState');
-            const typingIndicator = document.getElementById('typingIndicator');
-            const messageInput = document.getElementById('messageInput');
-            const sendBtn = document.getElementById('sendBtn');
-            const clearBtn = document.getElementById('clearBtn');
-
-            let isProcessing = false;
-            let messageCount = 0;
-
-            // ─── HELPERS ───
-            function getTime() {
-                const d = new Date();
-                return String(d.getHours()).padStart(2, '0') + '.' + String(d.getMinutes()).padStart(2, '0');
-            }
-
-            function scrollToBottom() {
-                requestAnimationFrame(() => chatArea.scrollTop = chatArea.scrollHeight);
-            }
-
-            function updateEmptyState() {
-                const hasMessages = chatArea.querySelectorAll('.message-wrapper').length > 0;
-                emptyState.style.display = hasMessages ? 'none' : 'flex';
-            }
-
-            function addMessage(text, sender, time) {
-                emptyState.style.display = 'none';
-
-                const wrapper = document.createElement('div');
-                wrapper.className = `message-wrapper ${sender}`;
-
-                const avatar = document.createElement('div');
-                avatar.className = `avatar ${sender === 'user' ? 'user-avatar' : ''}`;
-                avatar.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-feather-alt"></i>';
-
-                const bubble = document.createElement('div');
-                bubble.className = `message ${sender}`;
-                const label = sender === 'ai' ?
-                    `<div class="msg-label"><i class="fas fa-feather-alt"></i> AnshorAi</div>` :
-                    '';
-                const timeStr = time || getTime();
-                bubble.innerHTML = `
-                    ${label}
-                    <div class="msg-text">${text}</div>
-                    <div class="msg-time">${timeStr}</div>
-                `;
-
-                wrapper.appendChild(avatar);
-                wrapper.appendChild(bubble);
-                chatArea.insertBefore(wrapper, typingIndicator);
-                messageCount++;
-                scrollToBottom();
-                return wrapper;
-            }
-
-            // ─── KIRIM KE SERVER ───
-            async function sendToServer(userMessage) {
-                const response = await fetch(API_CONFIG.url, {
-                    method: API_CONFIG.method,
-                    headers: API_CONFIG.headers,
-                    body: JSON.stringify({ message: userMessage })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Server error (${response.status}): ${errorText}`);
-                }
-
-                const data = await response.json();
-                if (data.reply === undefined) {
-                    throw new Error('Respons server tidak memiliki field "reply"');
-                }
-                return data.reply;
-            }
-
-            // ─── PROSES KIRIM ───
-            async function handleSend() {
-                const text = messageInput.value.trim();
-                if (!text || isProcessing) return;
-
-                addMessage(text, 'user');
-                messageInput.value = '';
-                messageInput.style.height = 'auto';
-                messageInput.focus();
-
-                isProcessing = true;
-                sendBtn.disabled = true;
-                typingIndicator.classList.add('active');
-                scrollToBottom();
-
-                try {
-                    const reply = await sendToServer(text);
-                    typingIndicator.classList.remove('active');
-                    addMessage(reply, 'ai');
-                } catch (error) {
-                    typingIndicator.classList.remove('active');
-                    addMessage(`❌ Gagal menghubungi server: ${error.message}`, 'ai');
-                    console.error('API Error:', error);
-                } finally {
-                    isProcessing = false;
-                    sendBtn.disabled = false;
-                    scrollToBottom();
-                }
-            }
-
-            // ─── EVENT LISTENERS ───
-            sendBtn.addEventListener('click', handleSend);
-
-            messageInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                }
-            });
-
-            messageInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 110) + 'px';
-            });
-
-            clearBtn.addEventListener('click', () => {
-                if (messageCount === 0) return;
-                if (!confirm('Hapus semua pesan di layar?')) return;
-                const msgs = chatArea.querySelectorAll('.message-wrapper');
-                msgs.forEach(el => el.remove());
-                messageCount = 0;
-                updateEmptyState();
-                typingIndicator.classList.remove('active');
-                isProcessing = false;
-                sendBtn.disabled = false;
-                messageInput.value = '';
-                messageInput.style.height = 'auto';
-                messageInput.focus();
-                scrollToBottom();
-            });
-
-            // ─── INIT ───
-            updateEmptyState();
-            messageInput.focus();
-
-            // Mencegah zoom
-            document.addEventListener('gesturestart', (e) => e.preventDefault());
-        })();
-    </script>
-
-</body>
-</html>
+            const typingIndicator = document.getElementById('typingIndic
