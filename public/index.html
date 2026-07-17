@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>AnshorAi · Istana Ilmu</title>
+    <title>AnshorAi · Modern Art</title>
 
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:opsz,wght@14..32,300..700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
     <style>
+        /* ── RESET & BASE ── */
         * {
             margin: 0;
             padding: 0;
@@ -20,16 +21,18 @@
         }
 
         :root {
-            --gold: #c9a84c;
-            --gold-light: #e8d5a3;
-            --gold-glow: rgba(201, 168, 76, 0.3);
-            --navy: #0f1a2f;
-            --navy-light: #1b2a45;
-            --cream: #faf3e6;
-            --text-dark: #1e1a16;
-            --text-muted: #6b655a;
-            --shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            --bg-body: #0e0e12;
+            --bg-card: rgba(22, 22, 30, 0.7);
+            --accent: #b8a07c;
+            --accent-light: #d4c4a8;
+            --text-light: #f0ede8;
+            --text-muted: #8a8580;
+            --bubble-user: rgba(255, 255, 255, 0.04);
+            --bubble-ai: rgba(255, 255, 255, 0.02);
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
             --radius: 28px;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
         }
 
         html, body {
@@ -39,15 +42,12 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--navy);
-            color: var(--cream);
+            font-family: var(--font-body);
+            background: var(--bg-body);
+            color: var(--text-light);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0;
-            margin: 0;
             width: 100%;
             height: 100vh;
             height: 100dvh;
@@ -55,86 +55,46 @@
             overflow: hidden;
         }
 
-        /* ── Latar belakang geometri Islami ── */
-        .bg-pattern {
+        /* ── Latar belakang abstrak (modern art) ── */
+        .art-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image:
-                radial-gradient(circle at 20% 30%, rgba(201, 168, 76, 0.04) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(201, 168, 76, 0.03) 0%, transparent 50%),
-                repeating-conic-gradient(from 0deg at 50% 50%,
-                    transparent 0deg, transparent 15deg,
-                    rgba(201, 168, 76, 0.02) 15deg, rgba(201, 168, 76, 0.02) 16deg);
-            background-size: 100% 100%, 100% 100%, 80px 80px;
             z-index: 0;
             pointer-events: none;
+            overflow: hidden;
+        }
+        .art-bg .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(184, 160, 124, 0.04) 0%, transparent 70%);
+            animation: floatArt 20s infinite alternate ease-in-out;
+        }
+        .art-bg .circle:nth-child(1) { width: 500px; height: 500px; top: -10%; left: -10%; }
+        .art-bg .circle:nth-child(2) { width: 400px; height: 400px; bottom: -10%; right: -10%; animation-delay: 4s; }
+        .art-bg .circle:nth-child(3) { width: 300px; height: 300px; top: 40%; left: 60%; animation-delay: 8s; }
+        .art-bg .line {
+            position: absolute;
+            background: rgba(184, 160, 124, 0.02);
+            transform-origin: center;
+        }
+        .art-bg .line:nth-child(4) { width: 800px; height: 1px; top: 20%; left: -20%; transform: rotate(25deg); }
+        .art-bg .line:nth-child(5) { width: 600px; height: 1px; bottom: 30%; right: -10%; transform: rotate(-15deg); }
+
+        @keyframes floatArt {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, -20px) scale(1.05); }
         }
 
-        /* ── Ornamen lengkungan (mihrab) ── */
-        .mihrab {
-            position: fixed;
-            bottom: -10%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 700px;
-            height: 60%;
-            background: radial-gradient(ellipse at 50% 100%, rgba(201, 168, 76, 0.03) 0%, transparent 70%);
-            border-radius: 50% 50% 0 0 / 80% 80% 0 0;
-            z-index: 0;
-            pointer-events: none;
-            border-bottom: 2px solid rgba(201, 168, 76, 0.03);
-        }
-
-        /* ── Lampu gantung (dekorasi) ── */
-        .chandelier {
-            position: fixed;
-            top: 2%;
-            right: 4%;
-            font-size: 52px;
-            color: var(--gold);
-            opacity: 0.10;
-            z-index: 0;
-            pointer-events: none;
-            animation: sway 8s ease-in-out infinite alternate;
-            transform-origin: top center;
-        }
-        .chandelier::before {
-            content: '\f0e7';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-        }
-
-        @keyframes sway {
-            0% { transform: rotate(-3deg); }
-            100% { transform: rotate(3deg); }
-        }
-
-        /* ── Kaligrafi latar ── */
-        .calligraphy {
-            position: fixed;
-            font-family: 'Amiri', serif;
-            font-size: 80px;
-            color: var(--gold);
-            opacity: 0.02;
-            z-index: 0;
-            pointer-events: none;
-            user-select: none;
-            line-height: 1;
-        }
-        .calligraphy.tl { top: 5%; left: 4%; font-size: 60px; }
-        .calligraphy.br { bottom: 8%; right: 5%; font-size: 70px; transform: rotate(180deg); }
-
-        /* ── Container utama (full screen) ── */
+        /* ── Container utama ── */
         .app-container {
             width: 100%;
             height: 100%;
-            background: rgba(15, 26, 47, 0.55);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -143,29 +103,28 @@
             border: none;
         }
 
-        /* ── Header elegan ── */
+        /* ── Header ── */
         .header {
-            padding: 14px 20px 10px;
+            padding: 16px 20px 12px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             flex-shrink: 0;
-            border-bottom: 1px solid rgba(201, 168, 76, 0.08);
-            background: rgba(15, 26, 47, 0.3);
-            backdrop-filter: blur(4px);
+            border-bottom: 1px solid rgba(184, 160, 124, 0.05);
+            background: rgba(14, 14, 18, 0.3);
         }
 
         .header-icon {
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--gold), #a8873a);
+            background: linear-gradient(135deg, var(--accent), #9a8a72);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            color: var(--navy);
-            box-shadow: 0 0 30px rgba(201, 168, 76, 0.15);
+            color: #0e0e12;
+            box-shadow: 0 0 30px rgba(184, 160, 124, 0.1);
             flex-shrink: 0;
         }
 
@@ -175,19 +134,19 @@
         }
 
         .header-info h1 {
-            font-family: 'Amiri', serif;
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--gold-light);
-            letter-spacing: 0.5px;
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent-light);
+            letter-spacing: 0.3px;
             line-height: 1.2;
         }
 
         .header-info h1 span {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             font-weight: 300;
             font-size: 13px;
-            color: rgba(250, 243, 230, 0.5);
+            color: var(--text-muted);
         }
 
         .header-status {
@@ -195,8 +154,8 @@
             align-items: center;
             gap: 6px;
             font-size: 11px;
-            color: rgba(250, 243, 230, 0.4);
-            margin-top: 1px;
+            color: var(--text-muted);
+            margin-top: 2px;
         }
 
         .status-dot {
@@ -206,18 +165,17 @@
             background: #8cd4a0;
             display: inline-block;
             animation: pulse-dot 2s infinite;
-            box-shadow: 0 0 12px rgba(140, 212, 160, 0.2);
         }
 
         @keyframes pulse-dot {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.3; transform: scale(0.7); }
+            50% { opacity: 0.2; transform: scale(0.7); }
         }
 
         .header-actions button {
-            background: rgba(201, 168, 76, 0.04);
+            background: rgba(184, 160, 124, 0.04);
             border: none;
-            color: rgba(250, 243, 230, 0.4);
+            color: var(--text-muted);
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -227,22 +185,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            touch-action: manipulation;
         }
 
         .header-actions button:hover {
-            background: rgba(201, 168, 76, 0.12);
-            color: var(--gold);
+            background: rgba(184, 160, 124, 0.08);
+            color: var(--accent-light);
         }
 
-        /* ── Chat Area ── */
+        /* ── CHAT AREA (dengan background logo) ── */
         .chat-area {
             flex: 1;
             overflow-y: auto;
-            padding: 12px 16px 6px;
+            padding: 16px 18px 8px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             scroll-behavior: smooth;
             position: relative;
             z-index: 2;
@@ -250,7 +207,38 @@
         }
 
         .chat-area::-webkit-scrollbar { width: 3px; }
-        .chat-area::-webkit-scrollbar-thumb { background: rgba(201, 168, 76, 0.15); border-radius: 20px; }
+        .chat-area::-webkit-scrollbar-thumb { background: rgba(184, 160, 124, 0.15); border-radius: 20px; }
+
+        /* ─── LOGO WATERMARK (GAMBAR) ─── */
+        .chat-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 0;
+            user-select: none;
+            text-align: center;
+            width: 60%;
+            max-width: 240px;
+        }
+        .chat-watermark img {
+            width: 100%;
+            height: auto;
+            max-height: 180px;
+            object-fit: contain;
+            filter: grayscale(1) brightness(1.2);
+            display: block;
+            margin: 0 auto;
+        }
+        /* Fallback jika gambar gagal dimuat */
+        .chat-watermark img::after {
+            content: '✦';
+            font-size: 60px;
+            color: var(--accent);
+            display: block;
+        }
 
         /* ── Pesan ── */
         .message-wrapper {
@@ -258,6 +246,8 @@
             align-items: flex-start;
             gap: 10px;
             max-width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .message-wrapper.user {
@@ -270,27 +260,27 @@
         }
 
         .avatar {
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
-            color: var(--navy);
-            background: var(--gold);
-            box-shadow: 0 2px 12px rgba(201, 168, 76, 0.15);
-            border: 1px solid rgba(201, 168, 76, 0.1);
+            font-size: 14px;
+            color: #0e0e12;
+            background: var(--accent);
+            box-shadow: 0 2px 12px rgba(184, 160, 124, 0.08);
+            border: 1px solid rgba(184, 160, 124, 0.05);
         }
 
         .avatar.user-avatar {
-            background: #6b655a;
-            color: #faf3e6;
+            background: #5a5550;
+            color: #f0ede8;
         }
 
         .message {
-            max-width: 80%;
+            max-width: 82%;
             padding: 14px 18px;
             border-radius: 22px;
             font-size: 14px;
@@ -298,8 +288,8 @@
             word-wrap: break-word;
             animation: rise 0.35s ease-out;
             position: relative;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            border: 1px solid rgba(201, 168, 76, 0.04);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(184, 160, 124, 0.04);
         }
 
         @keyframes rise {
@@ -308,35 +298,33 @@
         }
 
         .message.user {
-            background: rgba(201, 168, 76, 0.10);
+            background: var(--bubble-user);
             border-bottom-right-radius: 4px;
-            color: var(--cream);
-            border-color: rgba(201, 168, 76, 0.06);
+            color: var(--text-light);
         }
 
         .message.ai {
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--bubble-ai);
             border-bottom-left-radius: 4px;
-            color: var(--cream);
-            border-color: rgba(201, 168, 76, 0.03);
-            backdrop-filter: blur(4px);
+            color: var(--text-light);
         }
 
         .message.ai .msg-label {
             font-size: 11px;
             font-weight: 500;
-            color: var(--gold-light);
-            letter-spacing: 0.5px;
+            color: var(--accent-light);
+            letter-spacing: 0.4px;
             margin-bottom: 4px;
             display: flex;
             align-items: center;
             gap: 6px;
-            font-family: 'Amiri', serif;
+            font-family: var(--font-display);
         }
 
         .message .msg-time {
             font-size: 10px;
-            color: rgba(250, 243, 230, 0.3);
+            color: var(--text-muted);
+            opacity: 0.3;
             margin-top: 6px;
             text-align: right;
             letter-spacing: 0.2px;
@@ -345,7 +333,7 @@
         /* ── Typing ── */
         .typing-indicator {
             align-self: flex-start;
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--bubble-ai);
             border-radius: 22px;
             border-bottom-left-radius: 4px;
             padding: 10px 18px;
@@ -355,9 +343,9 @@
             opacity: 0;
             transition: opacity 0.3s;
             pointer-events: none;
-            border: 1px solid rgba(201, 168, 76, 0.04);
+            border: 1px solid rgba(184, 160, 124, 0.04);
             z-index: 2;
-            margin-left: 46px;
+            margin-left: 44px;
             backdrop-filter: blur(4px);
         }
 
@@ -371,7 +359,7 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: var(--gold);
+            background: var(--accent);
             animation: typing 1.4s infinite both;
         }
 
@@ -392,33 +380,33 @@
             justify-content: center;
             text-align: center;
             padding: 20px 16px;
-            opacity: 0.6;
+            opacity: 0.5;
             z-index: 2;
             position: relative;
         }
 
         .empty-state .icon-big {
-            font-size: 60px;
-            color: var(--gold);
-            opacity: 0.10;
+            font-size: 56px;
+            color: var(--accent);
+            opacity: 0.08;
             margin-bottom: 12px;
-            font-family: 'Amiri', serif;
+            font-family: var(--font-display);
         }
 
         .empty-state h3 {
-            font-family: 'Amiri', serif;
-            font-size: 26px;
+            font-family: var(--font-display);
+            font-size: 22px;
             font-weight: 400;
-            color: var(--gold-light);
+            color: var(--accent-light);
             letter-spacing: 0.5px;
         }
 
         .empty-state p {
-            color: rgba(250, 243, 230, 0.4);
-            font-size: 14px;
-            max-width: 260px;
+            color: var(--text-muted);
+            font-size: 13px;
+            max-width: 240px;
             margin-top: 6px;
-            line-height: 1.7;
+            line-height: 1.6;
             font-weight: 300;
         }
 
@@ -426,8 +414,8 @@
         .input-area {
             padding: 8px 16px 14px;
             flex-shrink: 0;
-            background: linear-gradient(0deg, rgba(15, 26, 47, 0.92), transparent);
-            border-top: 1px solid rgba(201, 168, 76, 0.04);
+            background: linear-gradient(0deg, rgba(14, 14, 18, 0.92), transparent);
+            border-top: 1px solid rgba(184, 160, 124, 0.03);
             z-index: 2;
             position: relative;
         }
@@ -439,14 +427,14 @@
             background: rgba(255, 255, 255, 0.02);
             border-radius: 24px;
             padding: 4px 4px 4px 16px;
-            border: 1px solid rgba(201, 168, 76, 0.06);
+            border: 1px solid rgba(184, 160, 124, 0.05);
             transition: 0.3s;
             backdrop-filter: blur(6px);
         }
 
         .input-wrapper:focus-within {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.03);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(184, 160, 124, 0.02);
             background: rgba(255, 255, 255, 0.04);
         }
 
@@ -455,9 +443,9 @@
             background: transparent;
             border: none;
             outline: none;
-            color: var(--cream);
+            color: var(--text-light);
             font-size: 14px;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             resize: none;
             padding: 10px 0;
             min-height: 38px;
@@ -466,7 +454,8 @@
         }
 
         .input-wrapper textarea::placeholder {
-            color: rgba(250, 243, 230, 0.2);
+            color: var(--text-muted);
+            opacity: 0.2;
             font-weight: 300;
         }
 
@@ -484,33 +473,32 @@
             border-radius: 50%;
             border: none;
             background: transparent;
-            color: rgba(250, 243, 230, 0.3);
+            color: var(--text-muted);
             font-size: 17px;
             cursor: pointer;
             transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            touch-action: manipulation;
         }
 
         .input-actions button:hover {
-            color: var(--gold);
-            background: rgba(201, 168, 76, 0.04);
+            color: var(--accent-light);
+            background: rgba(184, 160, 124, 0.04);
         }
 
         .input-actions .btn-send {
-            background: linear-gradient(135deg, var(--gold), #a8873a);
-            color: var(--navy);
+            background: linear-gradient(135deg, var(--accent), #9a8a72);
+            color: #0e0e12;
             font-size: 16px;
-            box-shadow: 0 2px 16px rgba(201, 168, 76, 0.15);
+            box-shadow: 0 2px 16px rgba(184, 160, 124, 0.08);
             width: 44px;
             height: 44px;
         }
 
         .input-actions .btn-send:hover {
             transform: scale(1.04);
-            box-shadow: 0 4px 24px rgba(201, 168, 76, 0.25);
+            box-shadow: 0 4px 24px rgba(184, 160, 124, 0.15);
         }
 
         .input-actions .btn-send:active { transform: scale(0.93); }
@@ -520,76 +508,57 @@
             transform: scale(0.95);
         }
 
-        /* ─── COPYRIGHT (sangat jelas & kontras) ─── */
+        /* ─── COPYRIGHT ─── */
         .copyright {
             padding: 8px 0 12px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--gold-light);
-            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+            color: rgba(184, 160, 124, 0.25);
+            font-family: var(--font-display);
             letter-spacing: 0.5px;
             text-align: center;
             z-index: 2;
             position: relative;
-            background: rgba(15, 26, 47, 0.6);
+            background: rgba(14, 14, 18, 0.4);
             backdrop-filter: blur(4px);
-            border-top: 1px solid rgba(201, 168, 76, 0.06);
-            text-shadow: 0 0 20px rgba(201, 168, 76, 0.1);
+            border-top: 1px solid rgba(184, 160, 124, 0.03);
         }
         .copyright span {
-            color: var(--gold);
-            font-weight: 700;
-            margin: 0 4px;
-        }
-        .copyright .divider {
-            color: rgba(201, 168, 76, 0.2);
-            margin: 0 8px;
+            color: var(--accent-light);
+            opacity: 0.5;
         }
 
         /* ── Responsif ── */
         @media (max-width: 480px) {
-            .header { padding: 10px 14px 8px; }
-            .header-info h1 { font-size: 18px; }
+            .header { padding: 12px 14px 8px; gap: 10px; }
+            .header-info h1 { font-size: 17px; }
             .header-icon { width: 36px; height: 36px; font-size: 16px; }
-            .chat-area { padding: 8px 10px 4px; gap: 10px; }
+            .chat-area { padding: 10px 12px 6px; gap: 10px; }
             .message { font-size: 13px; padding: 12px 14px; max-width: 85%; }
-            .avatar { width: 30px; height: 30px; font-size: 13px; }
-            .input-area { padding: 6px 10px 10px; }
+            .avatar { width: 28px; height: 28px; font-size: 12px; }
+            .input-area { padding: 6px 12px 10px; }
             .input-wrapper { padding-left: 12px; }
             .input-wrapper textarea { font-size: 13px; padding: 8px 0; min-height: 34px; }
             .input-actions .btn-send { width: 40px; height: 40px; font-size: 14px; }
-            .typing-indicator { margin-left: 36px; padding: 8px 14px; }
-            .empty-state h3 { font-size: 20px; }
-            .empty-state .icon-big { font-size: 48px; }
-            .copyright { font-size: 12px; padding: 6px 0 10px; }
-            .calligraphy.tl { font-size: 40px; }
-            .calligraphy.br { font-size: 50px; }
-            .chandelier { font-size: 36px; }
-        }
-
-        @media (max-width: 360px) {
-            .header-info h1 { font-size: 16px; }
-            .message { font-size: 12px; padding: 10px 12px; max-width: 82%; }
-            .avatar { width: 26px; height: 26px; font-size: 11px; }
+            .typing-indicator { margin-left: 34px; padding: 8px 14px; }
+            .empty-state h3 { font-size: 18px; }
+            .empty-state .icon-big { font-size: 44px; }
+            .copyright { font-size: 11px; padding: 6px 0 10px; }
+            .chat-watermark { max-width: 160px; width: 50%; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Latar geometri -->
-    <div class="bg-pattern"></div>
+    <!-- Latar modern art -->
+    <div class="art-bg">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+    </div>
 
-    <!-- Lengkungan mihrab -->
-    <div class="mihrab"></div>
-
-    <!-- Lampu gantung -->
-    <div class="chandelier"></div>
-
-    <!-- Kaligrafi latar -->
-    <div class="calligraphy tl">﷽</div>
-    <div class="calligraphy br">﷽</div>
-
-    <!-- ─── CONTAINER UTAMA ─── -->
     <div class="app-container">
 
         <!-- ─── HEADER ─── -->
@@ -600,7 +569,7 @@
             <div class="header-info">
                 <h1>
                     AnshorAi
-                    <span>· Istana Ilmu</span>
+                    <span>· Modern Art</span>
                 </h1>
                 <div class="header-status">
                     <span class="status-dot"></span>
@@ -608,7 +577,7 @@
                 </div>
             </div>
             <div class="header-actions">
-                <button id="clearBtn" title="Bersihkan percakapan" aria-label="Clear chat">
+                <button id="clearBtn" title="Bersihkan percakapan">
                     <i class="fas fa-undo-alt"></i>
                 </button>
             </div>
@@ -617,11 +586,17 @@
         <!-- ─── CHAT AREA ─── -->
         <div class="chat-area" id="chatArea">
 
+            <!-- ─── LOGO WATERMARK (GAMBAR) ─── -->
+            <div class="chat-watermark">
+                <!-- Ganti 'logo.png' dengan nama file gambar Anda -->
+                <img src="logo.png" alt="Logo" />
+            </div>
+
             <!-- Empty state -->
             <div class="empty-state" id="emptyState">
-                <div class="icon-big">﷽</div>
-                <h3>Majelis Ilmu</h3>
-                <p>AnshorAi hadir untuk menemani diskusi Anda — tentang hikmah, pengetahuan, dan perenungan.</p>
+                <div class="icon-big">✦</div>
+                <h3>Ruang Kreatif</h3>
+                <p>AnshorAi hadir untuk diskusi tentang ide, seni, dan pengetahuan.</p>
             </div>
 
             <!-- Typing indicator -->
@@ -634,7 +609,7 @@
         <!-- ─── INPUT AREA ─── -->
         <div class="input-area">
             <div class="input-wrapper">
-                <textarea id="messageInput" rows="1" placeholder="Tuliskan pertanyaan atau renungan…" aria-label="Ketik pesan"></textarea>
+                <textarea id="messageInput" rows="1" placeholder="Tulis pesan…" aria-label="Ketik pesan"></textarea>
                 <div class="input-actions">
                     <button id="sendBtn" class="btn-send" aria-label="Kirim">
                         <i class="fas fa-paper-plane"></i>
@@ -643,7 +618,7 @@
             </div>
         </div>
 
-        <!-- ─── COPYRIGHT (jelas & kontras) ─── -->
+        <!-- ─── COPYRIGHT ─── -->
         <div class="copyright">
             <span>✦</span> copyright by bintangNPdev <span>✦</span>
         </div>
@@ -695,12 +670,10 @@
                 const wrapper = document.createElement('div');
                 wrapper.className = `message-wrapper ${sender}`;
 
-                // Avatar
                 const avatar = document.createElement('div');
                 avatar.className = `avatar ${sender === 'user' ? 'user-avatar' : ''}`;
                 avatar.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-feather-alt"></i>';
 
-                // Bubble
                 const bubble = document.createElement('div');
                 bubble.className = `message ${sender}`;
                 const label = sender === 'ai' ?
@@ -806,7 +779,7 @@
             updateEmptyState();
             messageInput.focus();
 
-            // Mencegah zoom gesture
+            // Mencegah zoom
             document.addEventListener('gesturestart', (e) => e.preventDefault());
         })();
     </script>
