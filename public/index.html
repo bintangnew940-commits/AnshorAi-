@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>AnshorAi · Modern Art</title>
 
-    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet" />
@@ -233,7 +232,6 @@
             display: block;
             margin: 0 auto;
         }
-        /* Fallback jika gambar gagal dimuat */
         .chat-watermark img::after {
             content: '✦';
             font-size: 120px;
@@ -529,7 +527,6 @@
             opacity: 0.5;
         }
 
-        /* ── Responsif ── */
         @media (max-width: 480px) {
             .header { padding: 12px 14px 8px; gap: 10px; }
             .header-info h1 { font-size: 17px; }
@@ -552,7 +549,6 @@
 </head>
 <body>
 
-    <!-- Latar modern art -->
     <div class="art-bg">
         <div class="circle"></div>
         <div class="circle"></div>
@@ -563,7 +559,6 @@
 
     <div class="app-container">
 
-        <!-- ─── HEADER ─── -->
         <header class="header">
             <div class="header-icon">
                 <i class="fas fa-feather-alt"></i>
@@ -585,30 +580,24 @@
             </div>
         </header>
 
-        <!-- ─── CHAT AREA ─── -->
         <div class="chat-area" id="chatArea">
 
-            <!-- ─── LOGO WATERMARK — SANGAT BESAR ─── -->
             <div class="chat-watermark">
-                <!-- Ganti 'logo.png' dengan nama file gambar Anda -->
                 <img src="logo.png" alt="Logo" />
             </div>
 
-            <!-- Empty state -->
             <div class="empty-state" id="emptyState">
                 <div class="icon-big">✦</div>
                 <h3>Ruang Kreatif</h3>
                 <p>AnshorAi hadir untuk diskusi tentang ide, seni, dan pengetahuan.</p>
             </div>
 
-            <!-- Typing indicator -->
             <div class="typing-indicator" id="typingIndicator">
                 <span></span><span></span><span></span>
             </div>
 
         </div>
 
-        <!-- ─── INPUT AREA ─── -->
         <div class="input-area">
             <div class="input-wrapper">
                 <textarea id="messageInput" rows="1" placeholder="Tulis pesan…" aria-label="Ketik pesan"></textarea>
@@ -620,7 +609,6 @@
             </div>
         </div>
 
-        <!-- ─── COPYRIGHT ─── -->
         <div class="copyright">
             <span>✦</span> copyright by bintangNPdev <span>✦</span>
         </div>
@@ -674,6 +662,8 @@
 
             // ─── RENDER PESAN ───
             function addMessage(text, sender) {
+                console.log(`[addMessage] ${sender}:`, text);
+
                 const wrapper = document.createElement('div');
                 wrapper.className = 'message-wrapper ' + sender;
 
@@ -725,7 +715,17 @@
             // ─── KIRIM PESAN ───
             async function sendMessage() {
                 const text = messageInput.value.trim();
-                if (!text || isProcessing) return;
+                console.log('[sendMessage] text:', text);
+
+                if (!text) {
+                    console.warn('[sendMessage] Pesan kosong, tidak dikirim.');
+                    return;
+                }
+
+                if (isProcessing) {
+                    console.warn('[sendMessage] Sedang memproses, tunggu...');
+                    return;
+                }
 
                 isProcessing = true;
                 sendBtn.disabled = true;
@@ -739,26 +739,39 @@
                 showTyping();
 
                 try {
+                    console.log('[sendMessage] Mengirim request ke:', API_CONFIG.url);
                     const response = await fetch(API_CONFIG.url, {
                         method: API_CONFIG.method,
                         headers: API_CONFIG.headers,
                         body: JSON.stringify({ message: text })
                     });
 
+                    console.log('[sendMessage] Response status:', response.status);
+
                     hideTyping();
 
                     if (!response.ok) {
-                        throw new Error('Server error: ' + response.status);
+                        const errText = await response.text();
+                        console.error('[sendMessage] Server error:', response.status, errText);
+                        throw new Error(`Server error ${response.status}: ${errText}`);
                     }
 
                     const data = await response.json();
-                    const reply = data.reply || data.message || data.response || 'Maaf, saya tidak bisa menjawab saat ini.';
-                    addMessage(reply, 'ai');
+                    console.log('[sendMessage] Data dari server:', data);
+
+                    // Cari properti yang mungkin berisi balasan
+                    const reply = data.reply || data.message || data.response || data.answer || data.text || null;
+                    if (reply) {
+                        addMessage(reply, 'ai');
+                    } else {
+                        console.warn('[sendMessage] Tidak ada properti balasan yang dikenali, gunakan fallback.');
+                        addMessage('Maaf, saya tidak bisa menjawab saat ini. (format respon tidak dikenali)', 'ai');
+                    }
 
                 } catch (error) {
                     hideTyping();
-                    console.error('API Error:', error);
-                    addMessage('Terjadi kesalahan koneksi. Pastikan server berjalan.', 'ai');
+                    console.error('[sendMessage] Error:', error);
+                    addMessage('Terjadi kesalahan koneksi. Pastikan server berjalan di ' + API_CONFIG.url, 'ai');
                 }
 
                 isProcessing = false;
@@ -773,6 +786,7 @@
                 hideTyping();
                 toggleEmptyState();
                 chatArea.scrollTop = 0;
+                console.log('[clearChat] Percakapan dibersihkan');
             }
 
             // ─── AUTO RESIZE TEXTAREA ───
@@ -782,26 +796,44 @@
             }
 
             // ─── EVENT LISTENERS ───
-            sendBtn.addEventListener('click', sendMessage);
+            sendBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('[event] Tombol kirim diklik');
+                sendMessage();
+            });
 
-            messageInput.addEventListener('keydown', (e) => {
+            messageInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
+                    console.log('[event] Enter ditekan (tanpa shift)');
                     sendMessage();
                 }
             });
 
             messageInput.addEventListener('input', autoResize);
 
-            clearBtn.addEventListener('click', clearChat);
+            clearBtn.addEventListener('click', function() {
+                console.log('[event] Tombol clear diklik');
+                clearChat();
+            });
 
             // ─── INIT ───
+            console.log('[init] Aplikasi siap.');
             toggleEmptyState();
             messageInput.focus();
+
+            // Cek apakah elemen DOM ditemukan dengan benar
+            console.log('[init] Elemen ditemukan:', {
+                chatArea: !!chatArea,
+                emptyState: !!emptyState,
+                typingIndicator: !!typingIndicator,
+                messageInput: !!messageInput,
+                sendBtn: !!sendBtn,
+                clearBtn: !!clearBtn
+            });
 
         })();
     </script>
 
 </body>
 </html>
-```
